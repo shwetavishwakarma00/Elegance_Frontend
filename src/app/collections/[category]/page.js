@@ -2,23 +2,38 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useMemo, useState } from "react";
-import { products } from "@/data/products";
+import { useEffect, useMemo, useState } from "react";
 
 const categories = ["All", "Eveningwear", "Tailoring", "Resort"];
 
 export default function CategoryPage({ params }) {
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const category = decodeURIComponent(params.category);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const url = category === "All" ? "/api/products" : `/api/products?category_name=${encodeURIComponent(category)}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        setProducts(Array.isArray(data) ? data : []);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [category]);
+
   const filteredProducts = useMemo(() => {
-    const baseProducts = category === "All" ? products : products.filter((product) => product.category === category);
+    const baseProducts = category === "All" ? products : products.filter((product) => product.category_name === category);
     return selectedFilter === "All"
       ? baseProducts
-      : baseProducts.filter((product) => product.tag === selectedFilter);
-  }, [category, selectedFilter]);
-
-  const categoryProducts = category === "All" ? products : products.filter((product) => product.category === category);
+      : baseProducts.filter((product) => product.product_name?.includes(selectedFilter) || product.category_name === selectedFilter);
+  }, [category, products, selectedFilter]);
 
   return (
     <main className="min-h-screen bg-[#fcf8f2] px-6 py-16 md:px-12 lg:px-20">
@@ -66,35 +81,47 @@ export default function CategoryPage({ params }) {
             </div>
           </aside>
 
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <article key={product.id} className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm">
-                <div className="relative h-56 w-full">
-                  <Image src={product.image} alt={product.name} fill className="object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-                  <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-800">
-                    {product.tag}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>
-                      {product.name}
-                    </h3>
-                    <span className="text-sm font-semibold text-gray-700">₹{product.price}</span>
-                  </div>
-                  <p className="mt-3 text-sm leading-7 text-gray-600">{product.description}</p>
-                  <div className="mt-5 flex items-center justify-between">
-                    <span className="rounded-full bg-[#f5ede3] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[#9d742b]">
-                      {product.category}
-                    </span>
-                    <Link href={`/product/${product.id}`} className="text-sm font-medium text-gray-900 hover:text-[#c9a84c]">
-                      View details →
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            ))}
+          <div>
+            {loading ? (
+              <div className="rounded-[1.2rem] border border-dashed border-[#d8c6a7] bg-white p-8 text-center text-sm text-gray-600">
+                Loading products…
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="rounded-[1.2rem] border border-dashed border-[#d8c6a7] bg-white p-8 text-center text-sm text-gray-600">
+                No products match this filter yet.
+              </div>
+            ) : (
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {filteredProducts.map((product) => (
+                  <article key={product.product_id} className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm">
+                    <div className="relative h-56 w-full">
+                      <Image src={product.image_url || "/img/dresses.jpg"} alt={product.product_name} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                      <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-800">
+                        {product.category_name || "Collection"}
+                      </span>
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="text-xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>
+                          {product.product_name}
+                        </h3>
+                        <span className="text-sm font-semibold text-gray-700">₹{product.price}</span>
+                      </div>
+                      <p className="mt-3 text-sm leading-7 text-gray-600">{product.description}</p>
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="rounded-full bg-[#f5ede3] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[#9d742b]">
+                          {product.material || "Luxury"}
+                        </span>
+                        <Link href={`/product/${product.product_id}`} className="text-sm font-medium text-gray-900 hover:text-[#c9a84c]">
+                          View details →
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

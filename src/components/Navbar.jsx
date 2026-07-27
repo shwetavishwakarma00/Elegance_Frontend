@@ -25,6 +25,12 @@ export default function Navbar() {
           New Arrivals
         </Link>
         <Link
+          href="/admin"
+          className="text-[11px] tracking-[0.15em] font-medium text-gray-800 uppercase hover:text-gray-500 transition-colors"
+        >
+          Admin
+        </Link>
+        <Link
           href="/lookbook"
           className="text-[11px] tracking-[0.15em] font-medium text-gray-800 uppercase hover:text-gray-500 transition-colors"
         >
@@ -124,6 +130,13 @@ export default function Navbar() {
             onClick={() => setMenuOpen(false)}
           >
             Lookbook
+          </Link>
+          <Link
+            href="/admin"
+            className="text-[11px] tracking-[0.15em] font-medium text-gray-800 uppercase hover:text-gray-400 transition-colors"
+            onClick={() => setMenuOpen(false)}
+          >
+            Admin
           </Link>
         </div>
       )}
