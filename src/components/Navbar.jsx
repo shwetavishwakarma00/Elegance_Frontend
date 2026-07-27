@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { totalItems, isOpen, setIsOpen } = useCart();
 
   return (
     <nav className="w-full bg-white border-b border-gray-100 px-6 md:px-12 py-4 flex items-center justify-between relative z-50">
@@ -83,14 +85,18 @@ export default function Navbar() {
         </button>
 
         {/* Cart */}
-        <button aria-label="Cart" className="relative text-gray-700 hover:text-gray-400 transition-colors">
+        <button
+          aria-label="Cart"
+          onClick={() => setIsOpen(!isOpen)}
+          className="relative text-gray-700 hover:text-gray-400 transition-colors"
+        >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
           <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
-            1
+            {totalItems}
           </span>
         </button>
       </div>
