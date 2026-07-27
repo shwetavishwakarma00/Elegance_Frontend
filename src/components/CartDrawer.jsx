@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
 export default function CartDrawer() {
@@ -8,8 +9,8 @@ export default function CartDrawer() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end bg-black/35">
-      <div className="h-full w-full max-w-md bg-[#fffaf4] p-6 shadow-2xl">
+    <div className="fixed inset-0 z-[60] flex justify-end bg-black/35 transition-opacity duration-300">
+      <div className="h-full w-full max-w-md translate-x-0 bg-[#fffaf4] p-6 shadow-2xl transition-transform duration-300">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-[#c9a84c]">Your bag</p>
@@ -82,9 +83,13 @@ export default function CartDrawer() {
               >
                 Clear
               </button>
-              <button className="flex-1 rounded-full bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-700">
+              <Link
+                href="/checkout"
+                onClick={() => setIsOpen(false)}
+                className="flex flex-1 items-center justify-center rounded-full bg-gray-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-gray-700"
+              >
                 Checkout
-              </button>
+              </Link>
             </div>
           </div>
         )}

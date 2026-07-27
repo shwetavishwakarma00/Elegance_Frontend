@@ -1,12 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-
-const products = [
-  { id: 1, name: "Silk Wrap Dress", price: 12999, tag: "New Arrival" },
-  { id: 2, name: "Pearl Tailored Set", price: 8999, tag: "Bestseller" },
-  { id: 3, name: "Linen Evening Co-ord", price: 7499, tag: "Limited" },
-];
+import { products } from "@/data/products";
 
 export default function FeaturedProducts() {
   const { addToCart } = useCart();
@@ -36,14 +32,22 @@ export default function FeaturedProducts() {
                 {product.name}
               </h4>
               <p className="mt-2 text-sm text-gray-600">Refined silhouette with polished detailing.</p>
-              <div className="mt-5 flex items-center justify-between">
+              <div className="mt-5 flex items-center justify-between gap-3">
                 <span className="text-lg font-semibold text-gray-900">₹{product.price}</span>
-                <button
-                  onClick={() => addToCart(product)}
-                  className="rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
-                >
-                  Add to cart
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => addToCart(product)}
+                    className="rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700"
+                  >
+                    Add to cart
+                  </button>
+                  <Link
+                    href={`/product/${product.id}`}
+                    className="rounded-full border border-gray-300 px-3 py-2 text-sm text-gray-700 transition hover:border-gray-900"
+                  >
+                    View
+                  </Link>
+                </div>
               </div>
             </div>
           ))}
