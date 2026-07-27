@@ -13,7 +13,7 @@ export default function Navbar() {
       {/* Left Nav Links */}
       <div className="hidden md:flex items-center gap-8">
         <Link
-          href="/collections"
+          href="/collections/All"
           className="text-[11px] tracking-[0.15em] font-medium text-gray-800 uppercase hover:text-gray-500 transition-colors"
         >
           Collections
@@ -105,7 +105,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-md z-50 flex flex-col py-4 px-6 gap-4">
           <Link
-            href="/collections"
+            href="/collections/All"
             className="text-[11px] tracking-[0.15em] font-medium text-gray-800 uppercase hover:text-gray-400 transition-colors"
             onClick={() => setMenuOpen(false)}
           >

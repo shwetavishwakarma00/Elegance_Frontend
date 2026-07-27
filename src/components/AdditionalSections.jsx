@@ -54,7 +54,7 @@ export default function AdditionalSections() {
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
-                href="/collections"
+                href="/collections/All"
                 className="rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-700"
               >
                 Explore the Edit
@@ -127,7 +127,7 @@ export default function AdditionalSections() {
                 Loved by women who value presence and polish.
               </h3>
             </div>
-            <Link href="/collections" className="text-sm font-medium text-gray-700 transition hover:text-[#c9a84c]">
+            <Link href="/collections/All" className="text-sm font-medium text-gray-700 transition hover:text-[#c9a84c]">
               View all favourites
             </Link>
           </div>
