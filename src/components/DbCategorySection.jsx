@@ -6,12 +6,30 @@ import Link from "next/link";
 export default function DbCategorySection() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => setCategories(data))
-      .finally(() => setLoading(false));
+    async function loadCategories() {
+      try {
+        const response = await fetch("/api/categories");
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.error || "Failed to fetch categories");
+        }
+
+        // The API should return an array, but never let an error object or
+        // another response shape reach categories.map().
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setCategories([]);
+        setError(err.message || "Failed to load categories");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCategories();
   }, []);
 
   if (loading) {
@@ -37,23 +55,29 @@ export default function DbCategorySection() {
           </p>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {categories.map((category) => (
-            <Link
-              key={category.category_id}
-              href={`/collections/${encodeURIComponent(category.category_name)}`}
-              className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm transition hover:-translate-y-1"
-            >
-              <div className="h-48 w-full bg-[#f5ede3]" />
-              <div className="p-5">
-                <h4 className="text-xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>
-                  {category.category_name}
-                </h4>
-                <p className="mt-2 text-sm leading-7 text-gray-600">{category.description}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {error ? (
+          <p className="text-sm text-red-600">{error}</p>
+        ) : categories.length === 0 ? (
+          <p className="text-sm text-gray-600">No categories found.</p>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {categories.map((category) => (
+              <Link
+                key={category.category_id}
+                href={`/collections/${encodeURIComponent(category.category_name)}`}
+                className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm transition hover:-translate-y-1"
+              >
+                <div className="h-48 w-full bg-[#f5ede3]" />
+                <div className="p-5">
+                  <h4 className="text-xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>
+                    {category.category_name}
+                  </h4>
+                  <p className="mt-2 text-sm leading-7 text-gray-600">{category.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
