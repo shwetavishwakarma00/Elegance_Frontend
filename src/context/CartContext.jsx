@@ -7,6 +7,7 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     try {
@@ -16,28 +17,39 @@ export function CartProvider({ children }) {
       }
     } catch (error) {
       console.error("Failed to load cart", error);
+    } finally {
+      setHydrated(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!hydrated) return;
     try {
       window.localStorage.setItem("elegance-cart", JSON.stringify(items));
     } catch (error) {
       console.error("Failed to save cart", error);
     }
-  }, [items]);
+  }, [items, hydrated]);
 
   const addToCart = (product) => {
+    const cartProduct = {
+      ...product,
+      id: product.id ?? product.product_id,
+      name: product.name ?? product.product_name,
+      price: Number(product.price || 0),
+      image: product.image || product.image_url || "/img/dresses.jpg",
+    };
+
     setItems((currentItems) => {
-      const existingItem = currentItems.find((item) => item.id === product.id);
+      const existingItem = currentItems.find((item) => item.id === cartProduct.id);
 
       if (existingItem) {
         return currentItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === cartProduct.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
 
-      return [...currentItems, { ...product, quantity: 1 }];
+      return [...currentItems, { ...cartProduct, quantity: 1 }];
     });
 
     setIsOpen(true);

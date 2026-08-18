@@ -3,18 +3,26 @@
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useState } from "react";
 
 export default function ProductActions({ product }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
+  const [added, setAdded] = useState(false);
+
+  const handleAdd = () => {
+    addToCart(product);
+    setAdded(true);
+    window.setTimeout(() => setAdded(false), 1800);
+  };
 
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
-        onClick={() => addToCart(product)}
+        onClick={handleAdd}
         className="rounded-full bg-gray-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-gray-700"
       >
-        Add to cart
+        {added ? "Added ✓" : "Add to cart"}
       </button>
       <button
         onClick={() => toggleWishlist(product)}

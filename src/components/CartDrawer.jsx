@@ -9,8 +9,8 @@ export default function CartDrawer() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end bg-black/35 transition-opacity duration-300">
-      <div className="h-full w-full max-w-md translate-x-0 bg-[#fffaf4] p-6 shadow-2xl transition-transform duration-300">
+    <div className="fixed inset-0 z-[60] flex justify-end bg-black/35 transition-opacity duration-300" onClick={() => setIsOpen(false)}>
+      <div className="h-full w-full max-w-md translate-x-0 bg-[#fffaf4] p-6 shadow-2xl transition-transform duration-300" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[11px] uppercase tracking-[0.3em] text-[#c9a84c]">Your bag</p>
@@ -18,8 +18,8 @@ export default function CartDrawer() {
               Shopping Cart
             </h3>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-sm text-gray-600 hover:text-gray-900">
-            Close
+          <button aria-label="Close cart" onClick={() => setIsOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full border border-[#eadfce] text-lg text-gray-600 hover:bg-white hover:text-gray-900">
+            ×
           </button>
         </div>
 
@@ -38,9 +38,13 @@ export default function CartDrawer() {
               {items.map((item) => (
                 <div key={item.id} className="rounded-[1rem] border border-[#eadfce] bg-white p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="flex min-w-0 items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={item.image || "/img/dresses.jpg"} alt="" className="h-16 w-14 rounded-lg object-cover" />
+                      <div className="min-w-0">
                       <p className="text-base text-gray-900">{item.name}</p>
                       <p className="mt-1 text-sm text-gray-600">₹{item.price}</p>
+                      </div>
                     </div>
                     <button onClick={() => removeFromCart(item.id)} className="text-sm text-gray-500 hover:text-red-600">
                       Remove
