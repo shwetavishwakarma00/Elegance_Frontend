@@ -11,7 +11,8 @@ export default function DbCategorySection() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        const response = await fetch("/api/categories");
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+        const response = await fetch(`${apiBaseUrl}/categories`);
         const data = await response.json();
 
         if (!response.ok) {
