@@ -1,39 +1,49 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
-
-const categories = ["All", "Eveningwear", "Tailoring", "Resort"];
+import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CategoryPage({ params }) {
-  const [selectedFilter, setSelectedFilter] = useState("All");
+  const router = useRouter();
+  const routeParams = use(params);
+  const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const category = decodeURIComponent(params.category);
+  const [error, setError] = useState("");
+  const category = decodeURIComponent(routeParams.category);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const loadCollection = async () => {
       try {
         setLoading(true);
-        const url = category === "All" ? "/api/products" : `/api/products?category_name=${encodeURIComponent(category)}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        setProducts(Array.isArray(data) ? data : []);
+        setError("");
+        const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+        const [categoryResponse, productResponse] = await Promise.all([
+          fetch(`${apiBaseUrl}/categories`),
+          fetch(`${apiBaseUrl}/products?category_name=${encodeURIComponent(category)}`),
+        ]);
+        const [categoryData, productData] = await Promise.all([
+          categoryResponse.json(),
+          productResponse.json(),
+        ]);
+
+        if (!categoryResponse.ok || !productResponse.ok) {
+          throw new Error(categoryData?.error || productData?.error || "Failed to load collection");
+        }
+
+        setCategories(Array.isArray(categoryData) ? categoryData : []);
+        setProducts(Array.isArray(productData) ? productData : []);
+      } catch (loadError) {
+        setError(loadError.message || "Failed to load collection");
+        setProducts([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    loadCollection();
   }, [category]);
-
-  const filteredProducts = useMemo(() => {
-    const baseProducts = category === "All" ? products : products.filter((product) => product.category_name === category);
-    return selectedFilter === "All"
-      ? baseProducts
-      : baseProducts.filter((product) => product.product_name?.includes(selectedFilter) || product.category_name === selectedFilter);
-  }, [category, products, selectedFilter]);
 
   return (
     <main className="min-h-screen bg-[#fcf8f2] px-6 py-16 md:px-12 lg:px-20">
@@ -62,22 +72,30 @@ export default function CategoryPage({ params }) {
             <div className="mt-5 flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible lg:pb-0">
               {categories.map((item) => (
                 <button
-                  key={item}
-                  onClick={() => setSelectedFilter(item)}
+                  key={item.category_id}
+                  onClick={() => router.push(`/collections/${encodeURIComponent(item.category_name)}`)}
                   className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
-                    selectedFilter === item
+                    category === item.category_name
                       ? "bg-gray-900 text-white"
                       : "bg-[#f5ede3] text-gray-700 hover:bg-[#eadfce]"
                   }`}
                 >
-                  {item}
+                  {item.category_name}
                 </button>
               ))}
+              <button
+                onClick={() => router.push("/collections/All")}
+                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm transition ${
+                  category === "All" ? "bg-gray-900 text-white" : "bg-[#f5ede3] text-gray-700 hover:bg-[#eadfce]"
+                }`}
+              >
+                All
+              </button>
             </div>
 
             <div className="mt-6 rounded-[1.2rem] bg-[#faf6f1] p-4 text-sm text-gray-600">
               <p className="font-semibold text-gray-900">Showing</p>
-              <p className="mt-2">{filteredProducts.length} product{filteredProducts.length === 1 ? "" : "s"} in this edit</p>
+              <p className="mt-2">{products.length} product{products.length === 1 ? "" : "s"} in this edit</p>
             </div>
           </aside>
 
@@ -86,16 +104,29 @@ export default function CategoryPage({ params }) {
               <div className="rounded-[1.2rem] border border-dashed border-[#d8c6a7] bg-white p-8 text-center text-sm text-gray-600">
                 Loading products…
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : error ? (
+              <div className="rounded-[1.2rem] border border-dashed border-red-200 bg-white p-8 text-center text-sm text-red-600">
+                {error}
+              </div>
+            ) : products.length === 0 ? (
               <div className="rounded-[1.2rem] border border-dashed border-[#d8c6a7] bg-white p-8 text-center text-sm text-gray-600">
                 No products match this filter yet.
               </div>
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                   <article key={product.product_id} className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm">
                     <div className="relative h-56 w-full">
-                      <Image src={product.image_url || "/img/dresses.jpg"} alt={product.product_name} fill className="object-cover" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={product.image_url || "/img/dresses.jpg"}
+                        alt={product.product_name}
+                        onError={(event) => {
+                          event.currentTarget.onerror = null;
+                          event.currentTarget.src = "/img/dresses.jpg";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                       <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-800">
                         {product.category_name || "Collection"}
@@ -125,11 +156,6 @@ export default function CategoryPage({ params }) {
           </div>
         </div>
 
-        {filteredProducts.length === 0 && (
-          <div className="mt-6 rounded-[1.2rem] border border-dashed border-[#d8c6a7] bg-white p-8 text-center text-sm text-gray-600">
-            No products match this filter yet. Try another category.
-          </div>
-        )}
       </div>
     </main>
   );

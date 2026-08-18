@@ -5,21 +5,26 @@ import { useEffect, useState } from "react";
 export default function AdminPage() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [form, setForm] = useState({
+  const [categoryForm, setCategoryForm] = useState({
     category_name: "",
     category_image: "",
     description: "",
+  });
+  const [productForm, setProductForm] = useState({
     product_name: "",
+    product_image: "",
     price: "",
     material: "",
     category_id: "",
+    description: "",
   });
   const [message, setMessage] = useState("");
 
   const loadData = async () => {
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     const [catRes, prodRes] = await Promise.all([
-      fetch("/api/categories"),
-      fetch("/api/products"),
+      fetch(`${apiBaseUrl}/categories`),
+      fetch(`${apiBaseUrl}/products`),
     ]);
     const [catData, prodData] = await Promise.all([catRes.json(), prodRes.json()]);
     setCategories(Array.isArray(catData) ? catData : []);
@@ -30,24 +35,11 @@ export default function AdminPage() {
     loadData();
   }, []);
 
-  const handleChange = (event) => {
-    setForm({ ...form, [event.target.name]: event.target.value });
-  };
-
-  const handleSubmit = async (event) => {
+  const submitData = async (event, payload, reset) => {
     event.preventDefault();
     setMessage("");
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-    const payload = {
-      category_name: form.category_name,
-      category_image: form.category_image,
-      description: form.description,
-      product_name: form.product_name,
-      price: form.price,
-      material: form.material,
-      category_id: form.category_id,
-    };
 
     try {
       const response = await fetch(`${apiBaseUrl}/admin`, {
@@ -58,15 +50,7 @@ export default function AdminPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to save");
       setMessage(data.message || "Saved successfully");
-      setForm({
-        category_name: "",
-        category_image: "",
-        description: "",
-        product_name: "",
-        price: "",
-        material: "",
-        category_id: "",
-      });
+      reset();
       loadData();
     } catch (error) {
       setMessage(error.message);
@@ -89,63 +73,43 @@ export default function AdminPage() {
           </div>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="rounded-[2rem] border border-[#eadfce] bg-white p-8 shadow-sm">
-          <div className="grid gap-4 md:grid-cols-2">
-            <input
-              name="category_name"
-              value={form.category_name}
-              onChange={handleChange}
-              placeholder="Category name"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <input
-              name="category_id"
-              value={form.category_id}
-              onChange={handleChange}
-              placeholder="Category ID for product"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <input
-              name="category_image"
-              value={form.category_image}
-              onChange={handleChange}
-              placeholder="Category image URL"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <input
-              name="product_name"
-              value={form.product_name}
-              onChange={handleChange}
-              placeholder="Product name"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <input
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="Price"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <input
-              name="material"
-              value={form.material}
-              onChange={handleChange}
-              placeholder="Material"
-              className="rounded-full border border-[#d8c6a7] px-4 py-3"
-            />
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Description"
-              rows="3"
-              className="rounded-[1.2rem] border border-[#d8c6a7] px-4 py-3 md:col-span-2"
-            />
-          </div>
-          <button type="submit" className="mt-6 rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-700">
-            Save category & product
-          </button>
-        </form>
+        <div className="grid gap-8 lg:grid-cols-2">
+          <form
+            onSubmit={(event) => submitData(event, categoryForm, () => setCategoryForm({ category_name: "", category_image: "", description: "" }))}
+            className="rounded-[2rem] border border-[#eadfce] bg-white p-8 shadow-sm"
+          >
+            <h2 className="text-2xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>Add a category</h2>
+            <p className="mt-2 text-sm text-gray-600">Create a category that will appear in the store and product selector.</p>
+            <div className="mt-6 space-y-4">
+              <input required name="category_name" value={categoryForm.category_name} onChange={(event) => setCategoryForm({ ...categoryForm, category_name: event.target.value })} placeholder="Category name" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+              <input name="category_image" value={categoryForm.category_image} onChange={(event) => setCategoryForm({ ...categoryForm, category_image: event.target.value })} placeholder="Category image URL" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+              <textarea name="description" value={categoryForm.description} onChange={(event) => setCategoryForm({ ...categoryForm, description: event.target.value })} placeholder="Category description" rows="4" className="w-full rounded-[1.2rem] border border-[#d8c6a7] px-4 py-3" />
+            </div>
+            <button type="submit" className="mt-6 rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-700">Add category</button>
+          </form>
+
+          <form
+            onSubmit={(event) => submitData(event, productForm, () => setProductForm({ product_name: "", product_image: "", price: "", material: "", category_id: "", description: "" }))}
+            className="rounded-[2rem] border border-[#eadfce] bg-white p-8 shadow-sm"
+          >
+            <h2 className="text-2xl text-gray-900" style={{ fontFamily: "'Georgia', serif" }}>Add a product</h2>
+            <p className="mt-2 text-sm text-gray-600">Choose an existing category before publishing the product.</p>
+            <div className="mt-6 space-y-4">
+              <input required name="product_name" value={productForm.product_name} onChange={(event) => setProductForm({ ...productForm, product_name: event.target.value })} placeholder="Product name" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+              <select required name="category_id" value={productForm.category_id} onChange={(event) => setProductForm({ ...productForm, category_id: event.target.value })} className="w-full rounded-full border border-[#d8c6a7] bg-white px-4 py-3 text-gray-700">
+                <option value="">Choose category</option>
+                {categories.map((category) => <option key={category.category_id} value={category.category_id}>{category.category_name}</option>)}
+              </select>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <input required type="number" min="0" step="0.01" name="price" value={productForm.price} onChange={(event) => setProductForm({ ...productForm, price: event.target.value })} placeholder="Price" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+                <input name="material" value={productForm.material} onChange={(event) => setProductForm({ ...productForm, material: event.target.value })} placeholder="Material" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+              </div>
+              <input name="product_image" value={productForm.product_image} onChange={(event) => setProductForm({ ...productForm, product_image: event.target.value })} placeholder="Product image URL" className="w-full rounded-full border border-[#d8c6a7] px-4 py-3" />
+              <textarea name="description" value={productForm.description || ""} onChange={(event) => setProductForm({ ...productForm, description: event.target.value })} placeholder="Product description" rows="4" className="w-full rounded-[1.2rem] border border-[#d8c6a7] px-4 py-3" />
+            </div>
+            <button type="submit" className="mt-6 rounded-full bg-gray-900 px-6 py-3 text-sm font-medium text-white transition hover:bg-gray-700">Add product</button>
+          </form>
+        </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-2">
           <div className="rounded-[2rem] border border-[#eadfce] bg-white p-6 shadow-sm">

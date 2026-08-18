@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import categoriesRouter from "./routes/categories.js";
 import adminRouter from "./routes/admin.js";
+import productsRouter from "./routes/products.js";
 
 // Reuse the existing local database settings in the frontend project.
 dotenv.config({ path: "../.env.local" });
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/categories", categoriesRouter);
+app.use("/api/products", productsRouter);
 app.use("/api/admin", adminRouter);
 
 app.listen(port, () => {

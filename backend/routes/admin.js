@@ -9,6 +9,7 @@ router.post("/", async (req, res) => {
     category_image,
     description,
     product_name,
+    product_image,
     price,
     material,
     category_id,
@@ -42,7 +43,7 @@ router.post("/", async (req, res) => {
     }
 
     if (productName) {
-      await connection.execute(
+      const [productResult] = await connection.execute(
         `INSERT INTO products (category_id, product_name, description, material, price, sku, status)
          VALUES (?, ?, ?, ?, ?, ?, 1)`,
         [
@@ -54,6 +55,14 @@ router.post("/", async (req, res) => {
           `SKU-${Date.now()}`,
         ]
       );
+
+      const productImage = String(product_image || "").trim();
+      if (productImage) {
+        await connection.execute(
+          `INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, 1)`,
+          [productResult.insertId, productImage]
+        );
+      }
     }
 
     await connection.commit();
