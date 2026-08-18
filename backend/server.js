@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import categoriesRouter from "./routes/categories.js";
+import adminRouter from "./routes/admin.js";
 
 // Reuse the existing local database settings in the frontend project.
 dotenv.config({ path: "../.env.local" });
@@ -17,6 +18,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api/categories", categoriesRouter);
+app.use("/api/admin", adminRouter);
 
 app.listen(port, () => {
   console.log(`Elegance API running at http://localhost:${port}`);

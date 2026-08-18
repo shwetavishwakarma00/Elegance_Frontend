@@ -7,6 +7,7 @@ export default function AdminPage() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({
     category_name: "",
+    category_image: "",
     description: "",
     product_name: "",
     price: "",
@@ -37,8 +38,10 @@ export default function AdminPage() {
     event.preventDefault();
     setMessage("");
 
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
     const payload = {
       category_name: form.category_name,
+      category_image: form.category_image,
       description: form.description,
       product_name: form.product_name,
       price: form.price,
@@ -47,7 +50,7 @@ export default function AdminPage() {
     };
 
     try {
-      const response = await fetch("/api/admin", {
+      const response = await fetch(`${apiBaseUrl}/admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -57,6 +60,7 @@ export default function AdminPage() {
       setMessage(data.message || "Saved successfully");
       setForm({
         category_name: "",
+        category_image: "",
         description: "",
         product_name: "",
         price: "",
@@ -99,6 +103,13 @@ export default function AdminPage() {
               value={form.category_id}
               onChange={handleChange}
               placeholder="Category ID for product"
+              className="rounded-full border border-[#d8c6a7] px-4 py-3"
+            />
+            <input
+              name="category_image"
+              value={form.category_image}
+              onChange={handleChange}
+              placeholder="Category image URL"
               className="rounded-full border border-[#d8c6a7] px-4 py-3"
             />
             <input
