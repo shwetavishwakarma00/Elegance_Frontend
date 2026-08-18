@@ -5,7 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useState } from "react";
 
-export default function ProductActions({ product }) {
+export default function ProductActions({ product, onlyBuyNow = false }) {
   const { addToCart } = useCart();
   const { toggleWishlist, isWishlisted } = useWishlist();
   const [added, setAdded] = useState(false);
@@ -16,6 +16,19 @@ export default function ProductActions({ product }) {
     window.setTimeout(() => setAdded(false), 1800);
   };
 
+  /* ONLY BUY NOW */
+  if (onlyBuyNow) {
+    return (
+      <Link
+        href="/checkout"
+        className="block w-full rounded-full bg-[#29251f] px-5 py-3 text-center text-sm font-medium text-white transition hover:bg-[#c9a84c]"
+      >
+        Buy now
+      </Link>
+    );
+  }
+
+  /* NORMAL PRODUCT ACTIONS */
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
@@ -24,6 +37,7 @@ export default function ProductActions({ product }) {
       >
         {added ? "Added ✓" : "Add to cart"}
       </button>
+
       <button
         onClick={() => toggleWishlist(product)}
         className={`rounded-full border px-5 py-3 text-sm font-medium transition ${
@@ -34,7 +48,11 @@ export default function ProductActions({ product }) {
       >
         {isWishlisted(product.id) ? "★ Saved" : "☆ Save"}
       </button>
-      <Link href="/checkout" className="rounded-full border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 hover:border-gray-900">
+
+      <Link
+        href="/checkout"
+        className="rounded-full border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 hover:border-gray-900"
+      >
         Buy now
       </Link>
     </div>
