@@ -115,8 +115,8 @@ export default function CategoryPage({ params }) {
             ) : (
               <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                 {products.map((product) => (
-                  <article key={product.product_id} className="overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm">
-                    <div className="relative h-56 w-full">
+                  <article key={product.product_id} className="group overflow-hidden rounded-[1.5rem] border border-[#eadfce] bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+                    <div className="relative h-64 w-full overflow-hidden bg-[#f5ede3]">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={product.image_url || "/img/dresses.jpg"}
@@ -125,7 +125,7 @@ export default function CategoryPage({ params }) {
                           event.currentTarget.onerror = null;
                           event.currentTarget.src = "/img/dresses.jpg";
                         }}
-                        className="h-full w-full object-cover"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
                       <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-800">
@@ -139,7 +139,7 @@ export default function CategoryPage({ params }) {
                         </h3>
                         <span className="text-sm font-semibold text-gray-700">₹{product.price}</span>
                       </div>
-                      <p className="mt-3 text-sm leading-7 text-gray-600">{product.description}</p>
+                      <p title={product.description} className="mt-3 line-clamp-2 min-h-14 text-sm leading-7 text-gray-600">{product.description || "A refined piece made for your everyday wardrobe."}</p>
                       <div className="mt-5 flex items-center justify-between">
                         <span className="rounded-full bg-[#f5ede3] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[#9d742b]">
                           {product.material || "Luxury"}
