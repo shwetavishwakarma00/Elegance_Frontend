@@ -3,9 +3,14 @@
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { toStoreProduct } from "@/lib/productAdapter";
 
 export default function CategoryPage({ params }) {
   const router = useRouter();
+  const { addToCart } = useCart();
+  const { toggleWishlist, isWishlisted } = useWishlist();
   const routeParams = use(params);
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -33,7 +38,7 @@ export default function CategoryPage({ params }) {
         }
 
         setCategories(Array.isArray(categoryData) ? categoryData : []);
-        setProducts(Array.isArray(productData) ? productData : []);
+        setProducts(Array.isArray(productData) ? productData.map(toStoreProduct) : []);
       } catch (loadError) {
         setError(loadError.message || "Failed to load collection");
         setProducts([]);
@@ -131,6 +136,9 @@ export default function CategoryPage({ params }) {
                       <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] uppercase tracking-[0.2em] text-gray-800">
                         {product.category_name || "Collection"}
                       </span>
+                      <button type="button" aria-label={isWishlisted(product.id) ? "Remove from wishlist" : "Add to wishlist"} onClick={() => toggleWishlist(product)} className={`absolute right-4 top-4 rounded-full bg-white/90 px-3 py-2 text-lg shadow-sm ${isWishlisted(product.id) ? "text-[#c9a84c]" : "text-gray-700"}`}>
+                        {isWishlisted(product.id) ? "♥" : "♡"}
+                      </button>
                     </div>
                     <div className="p-5">
                       <div className="flex items-center justify-between gap-2">
@@ -144,6 +152,7 @@ export default function CategoryPage({ params }) {
                         <span className="rounded-full bg-[#f5ede3] px-3 py-1 text-xs uppercase tracking-[0.2em] text-[#9d742b]">
                           {product.material || "Luxury"}
                         </span>
+                        <button type="button" onClick={() => addToCart(product)} className="rounded-full bg-gray-900 px-3 py-2 text-xs font-medium text-white hover:bg-gray-700">Add to cart</button>
                         <Link href={`/product/${product.product_id}`} className="text-sm font-medium text-gray-900 hover:text-[#c9a84c]">
                           View details →
                         </Link>
