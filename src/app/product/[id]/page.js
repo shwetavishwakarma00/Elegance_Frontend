@@ -3,12 +3,13 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProductById, products } from "@/data/products";
 import ProductActions from "@/components/ProductActions";
+import ProductDetailClient from "@/components/ProductDetailClient";
 
 export function generateStaticParams() {
   return products.map((product) => ({ id: String(product.id) }));
 }
 
-export default function ProductPage({ params }) {
+function LegacyProductPage({ params }) {
   const product = getProductById(params.id);
 
   if (!product) notFound();
@@ -61,4 +62,8 @@ export default function ProductPage({ params }) {
       </div>
     </main>
   );
+}
+
+export default function ProductPage({ params }) {
+  return <ProductDetailClient params={params} />;
 }
