@@ -105,7 +105,17 @@ export default function WishlistPage() {
                 <div className="relative mb-5 aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-[#f1e9df]">
 
                   {/* Placeholder until actual image is available */}
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={item.image || item.image_url || "/img/dresses.jpg"}
+                    alt={item.name}
+                    onError={(event) => {
+                      event.currentTarget.onerror = null;
+                      event.currentTarget.src = "/img/dresses.jpg";
+                    }}
+                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 hidden items-center justify-center">
                     <span className="text-7xl font-light text-[#d7c6a9] transition duration-500 group-hover:scale-110">
                       ♡
                     </span>
@@ -121,7 +131,7 @@ export default function WishlistPage() {
 
                   {/* Bottom Action */}
                   <div className="absolute bottom-4 left-4 right-4 translate-y-3 opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100">
-                    <div className="rounded-full bg-white/95 px-4 py-3 shadow-lg backdrop-blur">
+                    <div className="rounded-full  px-4 py-3 shadow-lg backdrop-blur">
                       <ProductActions product={item} onlyBuyNow />
                     </div>
                   </div>
